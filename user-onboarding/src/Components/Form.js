@@ -1,7 +1,8 @@
 import React from 'react';
-import {Form,Field} from 'formik';
+import {withFormik,Form,Field} from 'formik';
+import * as Yup from 'yup';
 
-export default function NewUser(){
+ function NewUser(){
     
     return (
         <div className='user-form'>
@@ -10,7 +11,7 @@ export default function NewUser(){
                 <Field type='text' name='email' placeholder='Email'/>
                 <Field type='password' name='password' placeholder='Password'/>
                 <label className='checkbox-container'>Terms of Service
-                <Field type='checkbox' name='terms' check={values.terms}/>
+                <Field type='checkbox' name='terms' checked/>
                 <span className='checkmark'/>        
                 </label>
                 <button type='submit'>Submit</button>
@@ -19,4 +20,30 @@ export default function NewUser(){
     )
 
 }
+const FormikHOC = withFormik({
+    mapPropsToValues({name,email,password,terms}){
+        return{
+            name: name || '',
+            email: email || '',
+            password: password || '',
+            terms: terms || false
+        };
+    },
+    validationSchema: Yup.object().shape({
+        name: Yup.string()
+            .required("Please enter your name."),
+        email: Yup.string()
+            .required("Enter your email address."),
 
+        password: Yup.string()
+            .min(6, 'Password must be at least 6 chars')
+            .required("Password is required."),
+
+        terms: Yup.bool()
+            .oneOf([true], 'Terms need to be accepted.')
+    }),
+    
+
+})(NewUser)
+
+export default FormikHOC;
